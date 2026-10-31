@@ -35,6 +35,17 @@ Completa este informe después de implementar las tres tareas MPI. Ejecuta las c
 
 Aceleración: 84,260 / 35,417 = 2,38. Con N = 4 resuelven 3 procesos, porque el proceso 0 solo coordina.
 
+### MPI por ramas (`mpi_ramas.py --all`, N = 4)
+
+| Corrida | Tiempo total (s) |
+| --- | ---: |
+| 1 | 34,488 |
+| 2 | 35,788 |
+| 3 | 34,685 |
+| **Mediana** | **34,685** |
+
+Aceleración: 84,260 / 34,685 = 2,43. Aquí los 4 procesos trabajan en cada tablero y no hay coordinador.
+
 ## Comparación final con el mismo `N`
 
 Repite tres veces cada ejecución y registra la mediana. Mantén fijo el `N` elegido en todas las filas MPI. Incluye `--allow-run-as-root --use-hwthread-cpus --oversubscribe` en `mpiexec`, igual que en la calibración, para permitir valores de `N` mayores que los slots detectados.
@@ -43,7 +54,7 @@ Repite tres veces cada ejecución y registra la mediana. Mantén fijo el `N` ele
 | --- | --- | ---: | ---: | ---: |
 | Secuencial | Todos los IDs | 1 | 84,260 | 1,00 |
 | MPI por tableros | Todos los IDs | 4 | 35,417 | 2,38 |
-| MPI por ramas | Todos los IDs, uno después de otro | N |  |  |
+| MPI por ramas | Todos los IDs, uno después de otro | 4 | 34,685 | 2,43 |
 | MPI híbrido | Todos los IDs | N |  |  |
 
 Calcula la aceleración como `tiempo secuencial / tiempo MPI`. Mide el tiempo MPI desde el inicio del reparto hasta recibir todos los resultados necesarios.

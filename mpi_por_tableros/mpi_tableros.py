@@ -35,6 +35,7 @@ else:
 
 
 def trabajador():
+    """Pide tableros al coordinador, los resuelve y le manda los resultados."""
     # Primer mensaje: "estoy libre, dame trabajo". None = no traigo resultado
     comm.send(None, dest=0)
     while True:
@@ -50,6 +51,7 @@ def trabajador():
 
 
 def coordinador():
+    """Reparte los tableros entre los trabajadores, junta los resultados y mide el tiempo."""
     pendientes = list(range(len(tableros)))  # índices de tableros sin repartir
     activos = size - 1  # trabajadores que todavía no han recibido el "fin"
     procesados = 0
