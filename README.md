@@ -7,7 +7,7 @@ Resuelvo 30 tableros de Sudoku con backtracking y comparo la versión secuencial
 - `sudoku.py`, `baseline_secuencial.py`, `detectar_procesos_mpi.py` y `seeds.txt`: archivos base del taller (versión secuencial y calibrador).
 - `mpi_por_tableros/`: Tarea 1, se reparten los tableros entre procesos.
 - `mpi_por_ramas/`: Tarea 2, los tableros se resuelven en orden y las ramas de cada uno se reparten entre procesos.
-- `mpi_hibrido/`: Tarea 3, se combinan las dos ideas (pendiente).
+- `mpi_hibrido/`: Tarea 3, se combinan las dos ideas: los procesos se dividen en grupos, cada grupo resuelve unos tableros y dentro del grupo se reparten las ramas.
 - `INFORME.md`: tiempos y conclusiones.
 
 Cada carpeta tiene su propio README con la explicación y los comandos.
@@ -36,6 +36,10 @@ docker run --rm -v "${PWD}:/app" augustosalazar/slim-mpi:2 mpiexec --allow-run-a
 
 ```powershell
 docker run --rm -v "${PWD}:/app" augustosalazar/slim-mpi:2 mpiexec --allow-run-as-root --use-hwthread-cpus --oversubscribe -n N python /app/mpi_por_ramas/mpi_ramas.py --all
+```
+
+```powershell
+docker run --rm -v "${PWD}:/app" augustosalazar/slim-mpi:2 mpiexec --allow-run-as-root --use-hwthread-cpus --oversubscribe -n N python /app/mpi_hibrido/mpi_hibrido.py --all --grupo 1
 ```
 
 En macOS cambia `"${PWD}:/app"` por `"$(pwd):/app"`.
