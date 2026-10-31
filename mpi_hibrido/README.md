@@ -22,7 +22,17 @@ Con N = 4 solo hay tres opciones: 4 grupos de 1, 2 grupos de 2 o 1 grupo de 4. P
 | 2 | 2 grupos de 2 | 49,97 |
 | 4 | 1 grupo de 4 | 50,30 |
 
-Ganó el grupo de tamaño 1. Cuanto más grande es el grupo, más tiempo pierden los procesos esperándose entre ellos al final de cada tablero. Con grupos de 1 nadie espera a nadie, aunque un solo proceso resuelve cada tablero. Estas mediciones se hicieron en un momento en que el equipo estaba más lento, por eso sirven para comparar los tamaños entre sí y no con las otras versiones. Los resultados finales están en `../INFORME.md`.
+Ganó el grupo de tamaño 1. Cuanto más grande es el grupo, más tiempo pierden los procesos esperándose entre ellos al final de cada tablero. Con grupos de 1 nadie espera a nadie, aunque un solo proceso resuelve cada tablero. Estas mediciones se hicieron en un momento en que el equipo estaba más lento, por eso sirven para comparar los tamaños entre sí y no con las otras versiones.
+
+Después volví a medir los grupos de 1 y de 2 intercalados, junto con la versión por tableros, en un momento en que el equipo rendía normal (mediana de 3 corridas):
+
+| Versión | Mediana (s) |
+| --- | ---: |
+| Híbrido, grupos de 1 | 34,48 |
+| Por tableros | 38,25 |
+| Híbrido, grupos de 2 | 39,87 |
+
+También ganó el grupo de 1. Los grupos de 2, que son la mezcla real (varios grupos y varios procesos por grupo), fueron más lentos que repartir solo tableros. Los resultados finales están en `../INFORME.md`.
 
 ## Limitación
 

@@ -27,6 +27,17 @@ Probé las tres formas de repartir 4 procesos en grupos, con 3 corridas cada una
 
 Se eligió el grupo de tamaño 1 porque tuvo la menor mediana. Estas 9 corridas se hicieron seguidas y en un momento en que el equipo estaba más lento que en las demás mediciones, así que sirven para comparar los tamaños entre sí, no para comparar con las otras versiones. Por eso la comparación final se volvió a medir (ver abajo).
 
+Como los grupos de 1 son en la práctica repartir tableros (nadie reparte ramas dentro del grupo), después volví a medir los grupos de 1 y los de 2 (la mezcla de verdad) **intercalados y junto con la versión por tableros**, en un momento en que el equipo rendía normal:
+
+| Vuelta | MPI por tableros (s) | Híbrido, grupos de 1 (s) | Híbrido, grupos de 2 (s) |
+| --- | ---: | ---: | ---: |
+| 1 | 37,026 | 33,305 | 43,601 |
+| 2 | 38,250 | 34,648 | 39,110 |
+| 3 | 39,583 | 34,479 | 39,871 |
+| **Mediana** | **38,250** | **34,479** | **39,871** |
+
+Tableros y grupos de 1 dieron casi lo mismo que en la comparación final (38,565 s y 34,791 s), así que el equipo estaba en un estado parecido y estas medidas se pueden comparar con esa tabla. Los grupos de 2 (39,871 s) quedaron más lentos que los grupos de 1 y que repartir tableros. Los grupos de 4 no se volvieron a medir en este momento.
+
 ## Comparación final con el mismo `N`
 
 Para que la comparación sea justa, las cuatro versiones se midieron **en la misma sesión, intercaladas** (en cada vuelta se corrió una vez cada versión, y se hicieron tres vueltas). El híbrido se midió con el tamaño de grupo elegido (1).
@@ -44,8 +55,9 @@ Para que la comparación sea justa, las cuatro versiones se midieron **en la mis
 | MPI por tableros | Todos los IDs | 4 | 38,565 | 2,00 |
 | MPI por ramas | Todos los IDs, uno después de otro | 4 | 40,452 | 1,91 |
 | MPI híbrido (4 grupos de 1) | Todos los IDs | 4 | 34,791 | 2,22 |
+| MPI híbrido (2 grupos de 2) | Todos los IDs | 4 | 39,871 | 1,94 |
 
-Aceleración = tiempo secuencial / tiempo MPI.
+Aceleración = tiempo secuencial / tiempo MPI. La última fila (grupos de 2) se midió en una sesión posterior (ver la tabla de arriba); se calculó con el secuencial de esta tabla porque en esa sesión tableros y grupos de 1 dieron prácticamente los mismos tiempos, lo que indica que el equipo estaba en un estado parecido.
 
 ### Primera tanda de mediciones (referencia)
 
@@ -63,6 +75,6 @@ Antes de la comparación final medí cada versión por separado, en otro momento
 
 - **¿Cómo afectaron la comunicación y las diferencias de duración entre tableros?** Los tableros tardan entre 1,2 y 6 s en secuencial, así que repartirlos fijos podía dejar procesos esperando. En MPI por tableros el reparto es dinámico (cada proceso pide otro tablero cuando termina), por eso la carga quedó pareja, pero el proceso 0 solo coordina y con N = 4 resuelven solo 3 procesos. Los mensajes son muy pequeños (un número de tablero y una tupla con el resultado), así que la comunicación casi no cuesta. En MPI por ramas la comunicación es el aviso de "ya lo resolví" y el `allgather` al final de cada tablero: todos los procesos tienen que esperar al más lento antes de pasar al siguiente, y eso se repite 30 veces. Otra cosa que noté es que cuando varios procesos corren a la vez, cada tablero tarda más que en la versión secuencial (por ejemplo el ID 3 tardó 5,2 a 5,8 s solo y bastante más cuando corrían 4 procesos juntos). No medí la causa, pero creo que se debe a que los procesos comparten recursos del procesador, y eso explica en parte por qué no se llega a una aceleración de 4.
 
-- **¿Cómo se comparó repartir tableros con resolverlos en orden y repartir las ramas de cada uno?** Repartir ramas hace que un solo tablero se resuelva más rápido (el ID 3 bajó de unos 5,8 s a unos 1,4 s), que es algo que repartir tableros no puede hacer, porque un tablero lo resuelve un solo proceso. Pero como hay que esperar a todos al final de cada tablero, el total no mejora tanto y quedó un poco peor que repartir tableros (40,45 s contra 38,56 s). El híbrido con grupos de 1 es en la práctica repartir tableros con los 4 procesos resolviendo y sin proceso coordinador, y por eso le ganó a las otras dos. Con grupos más grandes (2 y 4) fue más lento, porque los procesos de un mismo grupo se esperan entre sí en cada tablero.
+- **¿Cómo se comparó repartir tableros con resolverlos en orden y repartir las ramas de cada uno?** Repartir ramas hace que un solo tablero se resuelva más rápido (el ID 3 bajó de unos 5,8 s a unos 1,4 s), que es algo que repartir tableros no puede hacer, porque un tablero lo resuelve un solo proceso. Pero como hay que esperar a todos al final de cada tablero, el total no mejora tanto y quedó un poco peor que repartir tableros (40,45 s contra 38,56 s). El híbrido con grupos de 1 es en la práctica repartir tableros con los 4 procesos resolviendo y sin proceso coordinador, y por eso le ganó a las otras dos. Con grupos más grandes fue más lento: los grupos de 2 (la mezcla real de tableros y ramas) tardaron 39,87 s, medidos en la misma sesión que los grupos de 1 (34,48 s), y la explicación probable es que los procesos de un mismo grupo se esperan entre sí en cada tablero.
 
 - **Limitaciones.** El reparto de tableros del híbrido es fijo (cada grupo sabe desde el principio cuáles le tocan), así que si a un grupo le tocan los tableros más difíciles, los demás terminan antes y esperan. Además, los tiempos cambian de una tanda a otra en este equipo (el secuencial dio 84 s en una tanda y 77 s en otra), por eso la comparación final se midió toda junta. Las diferencias pequeñas, como la de tableros contra ramas, pueden estar dentro de esa variación.
