@@ -6,14 +6,14 @@ from pathlib import Path
 from mpi4py import MPI
 
 RAIZ = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(RAIZ))  # permite importar los archivos de la carpeta de arriba
+sys.path.insert(0, str(RAIZ))  # importar los archivos de carpeta de arriba
 
 from baseline_secuencial import leer_seeds
 from sudoku import puede_colocar
 
 comm = MPI.COMM_WORLD
-rank = comm.Get_rank()  # mi número de proceso
-size = comm.Get_size()  # cuántos procesos somos
+rank = comm.Get_rank()  # número de proceso
+size = comm.Get_size()  # cuántos procesos
 
 REVISAR_CADA = 5000  # cada cuántos pasos del backtracking reviso si llegó un mensaje
 
@@ -31,7 +31,7 @@ if args.id:
         sys.exit(0)
     tableros = [(args.id, seeds[args.id])]
 else:
-    tableros = list(seeds.items())  # lista de (id, tablero)
+    tableros = list(seeds.items())  # lista(id, tablero)
 
 
 class Detener(Exception):
@@ -45,7 +45,7 @@ pasos = 0  # cuántas casillas he rellenado en la rama actual
 def alguien_encontro(etiqueta):
     """Revisa si otro proceso ya encontró la solución, sin quedarse esperando."""
     global otro_encontro
-    # Iprobe solo pregunta si hay un mensaje; recv se quedaría esperando
+    # Iprobe solo pregunta si hay un mensaje, recv se quedaría esperando
     if not otro_encontro and comm.Iprobe(source=MPI.ANY_SOURCE, tag=etiqueta):
         comm.recv(source=MPI.ANY_SOURCE, tag=etiqueta)  # leo el aviso
         otro_encontro = True
@@ -63,8 +63,8 @@ def primera_vacia(tablero):
 
 def generar_ramas(tablero, minimo):
     """Crea las ramas del tablero rellenando las primeras casillas vacías."""
-    # Cada rama es el tablero con una combinación distinta de valores válidos.
-    # Se pide un mínimo de ramas (más que procesos) para repartir el trabajo parejo.
+    # Cada rama es el tablero con una combinación distinta de valores válidos
+    # Se pide un mínimo de ramas (más que procesos) para repartir el trabajo parejo
     ramas = [tablero]
     while len(ramas) < minimo:
         nuevas = []
@@ -97,12 +97,12 @@ def resolver_rama(tablero, etiqueta):
                     tablero[fila][columna] = valor
                     pasos += 1
                     if pasos % REVISAR_CADA == 0 and alguien_encontro(etiqueta):
-                        raise Detener  # otro ya resolvió: dejo de buscar
+                        raise Detener  # otro resolvió y dejó de buscar
                     if resolver_rama(tablero, etiqueta):
                         return True
-                    tablero[fila][columna] = 0  # retroceso: probar otro valor
+                    tablero[fila][columna] = 0  # retroceso, probar otro valor
             return False
-    return True  # no quedan casillas vacías
+    return True  # no hay má casillas vacías
 
 
 def resolver_tablero(indice, tablero):
@@ -111,12 +111,12 @@ def resolver_tablero(indice, tablero):
     otro_encontro = False
     etiqueta = indice  # cada tablero usa su propia etiqueta para no mezclar avisos
 
-    # Todos los procesos generan la misma lista de ramas (el cálculo es igual en todos)
+    # Todos los procesos generan la misma lista de ramas por eso el cálculo es igual en todos
     ramas = generar_ramas(tablero, 4 * size)
 
     yo_encontre = False
     try:
-        # Reparto: el proceso r toma las ramas r, r+size, r+2*size, ...
+        # Reparto, el proceso r toma las ramas r, r+size, r+2*size, ...
         for i in range(rank, len(ramas), size):
             if alguien_encontro(etiqueta):
                 break

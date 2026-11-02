@@ -39,21 +39,21 @@ def trabajador():
     # Primer mensaje: "estoy libre, dame trabajo". None = no traigo resultado
     comm.send(None, dest=0)
     while True:
-        indice = comm.recv(source=0)  # el coordinador me dice qué tablero resolver
+        indice = comm.recv(source=0)  # el coordinador dice qué tablero resolver
         if indice is None:  # None desde el coordinador = no quedan tableros
             break
         tablero = tableros[indice][1]
         # resolver() modifica el tablero que recibe, así que trabajo con una copia
         copia = [fila[:] for fila in tablero]
         resuelto, segundos = resolver_con_tiempo(copia)
-        # Entrego el resultado, esto también le avisa al coordinador que estoy libre
+        # Se entrega el resultado, esto le avisa al coordinador que estoy libre
         comm.send((indice, resuelto, segundos), dest=0)
 
 
 def coordinador():
     """Reparte los tableros entre los trabajadores, junta los resultados y mide el tiempo."""
     pendientes = list(range(len(tableros)))  # índices de tableros sin repartir
-    activos = size - 1  # trabajadores que todavía no han recibido el "fin"
+    activos = size - 1  # trabajadores que todavía no han recibido el fin
     procesados = 0
     resueltos = 0
     etiqueta = "Tiempo" if args.id else "Tiempo parcial"
@@ -75,9 +75,9 @@ def coordinador():
             print(f"{etiqueta}: {segundos:.6f} segundos", flush=True)
 
         if pendientes:
-            comm.send(pendientes.pop(0), dest=quien)  # el siguiente tablero
+            comm.send(pendientes.pop(0), dest=quien)  # siguiente tablero
         else:
-            comm.send(None, dest=quien)  # no hay más: señal de fin
+            comm.send(None, dest=quien)  # no hay más, señal de fin
             activos -= 1
     total = time.perf_counter() - inicio  # llegan todos los resultados
 
